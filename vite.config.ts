@@ -1,23 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { copyFileSync, mkdirSync } from 'fs'
+import { copyFileSync, mkdirSync, cpSync } from 'fs'
 
 export default defineConfig({
   plugins: [
     react(),
     {
-      // Copy manifest.json and popup.html into dist after build
       name: 'copy-extension-files',
       closeBundle() {
         mkdirSync('dist', { recursive: true })
+        // Copy manifest and popup
         copyFileSync('manifest.json', 'dist/manifest.json')
         copyFileSync('popup.html',    'dist/popup.html')
+        // Copy entire icons folder into dist/icons/
+        cpSync('icons', 'dist/icons', { recursive: true })
+        console.log('✓ manifest.json, popup.html, icons/ copied to dist/')
       },
     },
   ],
   build: {
-    outDir:   'dist',
+    outDir:      'dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
